@@ -1,0 +1,371 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif; background: #f0f0f0; color: #333; }
+  .nav { background: #005594; color: #fff; padding: 0 16px; height: 52px; display: flex; align-items: center; justify-content: space-between; }
+  .nav-logo { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; }
+  .nav-logo span { color: #5BC8F5; }
+  .nav-links { display: flex; gap: 20px; font-size: 13px; opacity: 0.85; }
+  .nav-links a { color: #fff; text-decoration: none; cursor: pointer; }
+  .nav-links a:hover { opacity: 1; text-decoration: underline; }
+  .date-bar { background: #fff; border-bottom: 1px solid #ddd; padding: 0 16px; height: 40px; display: flex; align-items: center; justify-content: space-between; }
+  .date-bar .date-nav { display: flex; align-items: center; gap: 12px; }
+  .date-btn { background: none; border: none; font-size: 18px; cursor: pointer; color: #005594; padding: 4px 8px; }
+  .date-label { font-size: 14px; font-weight: 600; color: #005594; min-width: 160px; text-align: center; }
+  .date-bar .streak { font-size: 12px; color: #888; }
+  .container { max-width: 900px; margin: 0 auto; padding: 12px 12px 40px; }
+  .grid-top { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .card { background: #fff; border-radius: 8px; border: 1px solid #ddd; overflow: hidden; }
+  .card-header { background: #005594; color: #fff; padding: 8px 14px; font-size: 13px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+  .card-header .edit-btn { font-size: 11px; color: #5BC8F5; cursor: pointer; font-weight: 400; }
+  .card-body { padding: 14px; }
+  .calorie-section { display: flex; align-items: center; gap: 16px; }
+  .ring-wrap { position: relative; width: 100px; height: 100px; flex-shrink: 0; }
+  .ring-wrap svg { transform: rotate(-90deg); }
+  .ring-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+  .ring-center .cal-num { font-size: 20px; font-weight: 700; color: #333; line-height: 1; }
+  .ring-center .cal-label { font-size: 10px; color: #888; margin-top: 2px; }
+  .cal-breakdown { flex: 1; }
+  .cal-row { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px; }
+  .cal-row span:first-child { color: #888; }
+  .cal-row span:last-child { font-weight: 600; color: #333; }
+  .cal-remaining { font-size: 22px; font-weight: 700; color: #2B8A3E; margin-bottom: 2px; }
+  .cal-remaining.over { color: #C92A2A; }
+  .cal-sub { font-size: 11px; color: #888; }
+  .macro-row { margin-bottom: 10px; }
+  .macro-label { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 3px; }
+  .macro-label span:first-child { color: #555; font-weight: 500; }
+  .macro-label span:last-child { color: #888; font-size: 11px; }
+  .bar-bg { height: 7px; background: #eee; border-radius: 4px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+  .bar-carbs { background: #F4A261; }
+  .bar-protein { background: #5BC8F5; }
+  .bar-fat { background: #E76F51; }
+  .bar-fiber { background: #74C69D; }
+  .diary-section { margin-bottom: 12px; }
+  .meal-header { background: #005594; color: #fff; padding: 8px 14px; font-size: 13px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-radius: 8px 8px 0 0; }
+  .meal-header .meal-cal { font-size: 12px; opacity: 0.85; font-weight: 400; }
+  .meal-header .expand { font-size: 16px; }
+  .meal-body { border: 1px solid #ddd; border-top: none; border-radius: 0 0 8px 8px; background: #fff; }
+  .food-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 14px; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
+  .food-row:last-child { border-bottom: none; }
+  .food-name { color: #333; font-weight: 500; }
+  .food-detail { font-size: 11px; color: #888; }
+  .food-cals { font-weight: 600; color: #005594; }
+  .add-food-row { display: flex; justify-content: center; padding: 8px; border-top: 1px solid #eee; }
+  .add-btn { background: none; border: 1px solid #005594; color: #005594; font-size: 12px; padding: 4px 16px; border-radius: 20px; cursor: pointer; font-weight: 500; }
+  .add-btn:hover { background: #005594; color: #fff; }
+  .meal-total-row { display: flex; justify-content: space-between; padding: 7px 14px; background: #f7f7f7; border-top: 1px solid #eee; font-size: 12px; font-weight: 600; color: #555; border-radius: 0 0 8px 8px; }
+  .water-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; }
+  .water-cup { width: 100%; aspect-ratio: 1; background: #eef7ff; border: 1.5px solid #b3d8f5; border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 14px; transition: background 0.2s; }
+  .water-cup.filled { background: #5BC8F5; border-color: #0A8ACD; }
+  .water-info { display: flex; justify-content: space-between; font-size: 12px; color: #888; margin-top: 8px; }
+  .exercise-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 14px; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
+  .exercise-name { font-weight: 500; color: #333; }
+  .exercise-detail { font-size: 11px; color: #888; }
+  .exercise-cals { color: #2B8A3E; font-weight: 600; font-size: 13px; }
+  .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border-top: 1px solid #eee; }
+  .stat-cell { padding: 10px 8px; text-align: center; border-right: 1px solid #eee; }
+  .stat-cell:last-child { border-right: none; }
+  .stat-val { font-size: 16px; font-weight: 700; color: #333; }
+  .stat-name { font-size: 10px; color: #888; margin-top: 2px; }
+  .progress-note { font-size: 11px; color: #888; text-align: center; padding: 8px 14px; }
+  .nutrient-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .nutrient-item { display: flex; justify-content: space-between; font-size: 12px; padding: 3px 0; border-bottom: 1px solid #f5f5f5; }
+  .nutrient-item span:first-child { color: #666; }
+  .nutrient-item span:last-child { font-weight: 600; color: #333; }
+  .badge { display: inline-block; background: #E6F7FF; color: #005594; border-radius: 10px; font-size: 10px; padding: 2px 7px; font-weight: 500; }
+  @media (max-width: 600px) { .grid-top { grid-template-columns: 1fr; } }
+</style>
+
+<div style="min-height: 600px;">
+
+<div class="nav">
+  <div class="nav-logo">Nutrition<span>Maxx</span></div>
+  <div class="nav-links">
+    <a>Dashboard</a>
+    <a>Food</a>
+    <a>Exercise</a>
+    <a>Reports</a>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px;">
+    <div style="width:28px;height:28px;border-radius:50%;background:#5BC8F5;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#005594;">G</div>
+    <span style="font-size:13px;">Golu</span>
+  </div>
+</div>
+
+<div class="date-bar">
+  <div class="date-nav">
+    <button class="date-btn" onclick="changeDate(-1)">&#8249;</button>
+    <div class="date-label" id="date-display">Today, Mar 15</div>
+    <button class="date-btn" onclick="changeDate(1)">&#8250;</button>
+  </div>
+  <div class="streak">🔥 7 day streak</div>
+</div>
+
+<div class="container">
+
+  <div class="grid-top">
+    <div class="card">
+      <div class="card-header">
+        Calories Remaining
+        <span class="edit-btn">Goal: 2,200</span>
+      </div>
+      <div class="card-body">
+        <div class="calorie-section">
+          <div class="ring-wrap">
+            <svg width="100" height="100" viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="42" fill="none" stroke="#eee" stroke-width="10"/>
+              <circle cx="50" cy="50" r="42" fill="none" stroke="#F4A261" stroke-width="10"
+                stroke-dasharray="263.9" stroke-dashoffset="19" stroke-linecap="round"/>
+              <circle cx="50" cy="50" r="42" fill="none" stroke="#5BC8F5" stroke-width="10"
+                stroke-dasharray="263.9" stroke-dashoffset="100" stroke-linecap="round" opacity="0"/>
+            </svg>
+            <div class="ring-center">
+              <div class="cal-num">543</div>
+              <div class="cal-label">remaining</div>
+            </div>
+          </div>
+          <div class="cal-breakdown">
+            <div class="cal-row"><span>Goal</span><span>2,200</span></div>
+            <div class="cal-row"><span>Food</span><span>1,657</span></div>
+            <div class="cal-row"><span>Exercise</span><span style="color:#2B8A3E;">+230</span></div>
+            <div style="border-top:1px solid #eee;margin:6px 0;"></div>
+            <div class="cal-remaining">773</div>
+            <div class="cal-sub">calories remaining</div>
+          </div>
+        </div>
+        <div class="stat-row" style="margin-top:12px;">
+          <div class="stat-cell"><div class="stat-val" style="color:#F4A261;">197g</div><div class="stat-name">Carbs</div></div>
+          <div class="stat-cell"><div class="stat-val" style="color:#5BC8F5;">142g</div><div class="stat-name">Protein</div></div>
+          <div class="stat-cell"><div class="stat-val" style="color:#E76F51;">48g</div><div class="stat-name">Fat</div></div>
+          <div class="stat-cell"><div class="stat-val" style="color:#74C69D;">18g</div><div class="stat-name">Fiber</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">Macro Breakdown</div>
+      <div class="card-body">
+        <div class="macro-row">
+          <div class="macro-label"><span>Carbohydrates</span><span>197g / 247g</span></div>
+          <div class="bar-bg"><div class="bar-fill bar-carbs" style="width:80%;"></div></div>
+        </div>
+        <div class="macro-row">
+          <div class="macro-label"><span>Protein</span><span>142g / 165g</span></div>
+          <div class="bar-bg"><div class="bar-fill bar-protein" style="width:86%;"></div></div>
+        </div>
+        <div class="macro-row">
+          <div class="macro-label"><span>Fat</span><span>48g / 73g</span></div>
+          <div class="bar-bg"><div class="bar-fill bar-fat" style="width:66%;"></div></div>
+        </div>
+        <div class="macro-row">
+          <div class="macro-label"><span>Fiber</span><span>18g / 30g</span></div>
+          <div class="bar-bg"><div class="bar-fill bar-fiber" style="width:60%;"></div></div>
+        </div>
+        <div style="border-top:1px solid #eee;padding-top:10px;margin-top:4px;">
+          <div class="nutrient-grid">
+            <div class="nutrient-item"><span>Sodium</span><span>1,840mg</span></div>
+            <div class="nutrient-item"><span>Cholesterol</span><span>210mg</span></div>
+            <div class="nutrient-item"><span>Sugar</span><span>32g</span></div>
+            <div class="nutrient-item"><span>Calcium</span><span>68%</span></div>
+            <div class="nutrient-item"><span>Iron</span><span>45%</span></div>
+            <div class="nutrient-item"><span>Vitamin D</span><span>22%</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="diary-section">
+    <div class="meal-header" onclick="toggle('breakfast')">
+      <div>Breakfast <span class="badge">3 items</span></div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="meal-cal">487 cal</span>
+        <span class="expand" id="expand-breakfast">▲</span>
+      </div>
+    </div>
+    <div class="meal-body" id="meal-breakfast">
+      <div class="food-row">
+        <div><div class="food-name">Oats with milk</div><div class="food-detail">1 cup, cooked — 166g</div></div>
+        <span class="food-cals">220</span>
+      </div>
+      <div class="food-row">
+        <div><div class="food-name">Banana</div><div class="food-detail">1 medium — 118g</div></div>
+        <span class="food-cals">105</span>
+      </div>
+      <div class="food-row">
+        <div><div class="food-name">Whey Protein Shake</div><div class="food-detail">1 scoop, chocolate — 33g</div></div>
+        <span class="food-cals">162</span>
+      </div>
+      <div class="add-food-row"><button class="add-btn" onclick="sendPrompt('Add a food to breakfast in NutritionMaxx')">+ Add food</button></div>
+      <div class="meal-total-row"><span>Total</span><span>487 cal · 58g C · 32g P · 9g F</span></div>
+    </div>
+  </div>
+
+  <div class="diary-section">
+    <div class="meal-header" onclick="toggle('lunch')">
+      <div>Lunch <span class="badge">4 items</span></div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="meal-cal">612 cal</span>
+        <span class="expand" id="expand-lunch">▲</span>
+      </div>
+    </div>
+    <div class="meal-body" id="meal-lunch">
+      <div class="food-row">
+        <div><div class="food-name">Chicken Breast, grilled</div><div class="food-detail">150g</div></div>
+        <span class="food-cals">248</span>
+      </div>
+      <div class="food-row">
+        <div><div class="food-name">Brown Rice, cooked</div><div class="food-detail">1 cup — 195g</div></div>
+        <span class="food-cals">216</span>
+      </div>
+      <div class="food-row">
+        <div><div class="food-name">Mixed Vegetables, stir-fried</div><div class="food-detail">100g, with olive oil</div></div>
+        <span class="food-cals">98</span>
+      </div>
+      <div class="food-row">
+        <div><div class="food-name">Greek Yogurt</div><div class="food-detail">100g, plain 0%</div></div>
+        <span class="food-cals">50</span>
+      </div>
+      <div class="add-food-row"><button class="add-btn" onclick="sendPrompt('Add a food to lunch in NutritionMaxx')">+ Add food</button></div>
+      <div class="meal-total-row"><span>Total</span><span>612 cal · 79g C · 68g P · 14g F</span></div>
+    </div>
+  </div>
+
+  <div class="diary-section">
+    <div class="meal-header" onclick="toggle('dinner')">
+      <div>Dinner <span class="badge">2 items</span></div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="meal-cal">418 cal</span>
+        <span class="expand" id="expand-dinner">▲</span>
+      </div>
+    </div>
+    <div class="meal-body" id="meal-dinner">
+      <div class="food-row">
+        <div><div class="food-name">Dal Tadka + Roti</div><div class="food-detail">1 bowl dal, 2 roti</div></div>
+        <span class="food-cals">340</span>
+      </div>
+      <div class="food-row">
+        <div><div class="food-name">Salad, mixed greens</div><div class="food-detail">1 plate, no dressing</div></div>
+        <span class="food-cals">78</span>
+      </div>
+      <div class="add-food-row"><button class="add-btn" onclick="sendPrompt('Add a food to dinner in NutritionMaxx')">+ Add food</button></div>
+      <div class="meal-total-row"><span>Total</span><span>418 cal · 58g C · 22g P · 12g F</span></div>
+    </div>
+  </div>
+
+  <div class="diary-section">
+    <div class="meal-header" onclick="toggle('snacks')">
+      <div>Snacks <span class="badge">2 items</span></div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="meal-cal">140 cal</span>
+        <span class="expand" id="expand-snacks">▲</span>
+      </div>
+    </div>
+    <div class="meal-body" id="meal-snacks">
+      <div class="food-row">
+        <div><div class="food-name">Almonds</div><div class="food-detail">15 pieces — 20g</div></div>
+        <span class="food-cals">116</span>
+      </div>
+      <div class="food-row">
+        <div><div class="food-name">Apple</div><div class="food-detail">1 small — 140g</div></div>
+        <span class="food-cals">73</span>
+      </div>
+      <div class="add-food-row"><button class="add-btn" onclick="sendPrompt('Suggest healthy snacks for NutritionMaxx goals')">+ Add food ↗</button></div>
+      <div class="meal-total-row"><span>Total</span><span>140 cal · 14g C · 4g P · 9g F</span></div>
+    </div>
+  </div>
+
+  <div class="grid-top" style="margin-top:12px;">
+    <div class="card">
+      <div class="card-header">Water Intake <span class="edit-btn" id="water-label">5 / 8 glasses</span></div>
+      <div class="card-body">
+        <div class="water-grid" id="water-cups"></div>
+        <div class="water-info">
+          <span id="water-ml">1,250 ml consumed</span>
+          <span>Goal: 2,000 ml</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">Exercise Log <span class="edit-btn">+230 cal burned</span></div>
+      <div class="card-body" style="padding:0;">
+        <div class="exercise-row">
+          <div>
+            <div class="exercise-name">Running</div>
+            <div class="exercise-detail">30 min · 5.2 km · moderate pace</div>
+          </div>
+          <span class="exercise-cals">+180 cal</span>
+        </div>
+        <div class="exercise-row">
+          <div>
+            <div class="exercise-name">Weight Training</div>
+            <div class="exercise-detail">45 min · upper body</div>
+          </div>
+          <span class="exercise-cals">+50 cal</span>
+        </div>
+        <div class="add-food-row" style="border-top:1px solid #eee;">
+          <button class="add-btn" onclick="sendPrompt('Log a new exercise in NutritionMaxx')">+ Log exercise</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:12px;">
+    <div class="card-header">AI Nutrition Coach</div>
+    <div class="card-body" style="display:flex;gap:12px;align-items:flex-start;">
+      <div style="width:36px;height:36px;border-radius:50%;background:#005594;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#5BC8F5;font-size:18px;">✦</div>
+      <div>
+        <div style="font-size:13px;color:#333;line-height:1.6;">Great work today, Golu! You're 80% to your protein goal. Try adding an egg or paneer at dinner to hit your target. Your carb intake looks good — just watch sodium; it's slightly elevated today.</div>
+        <div style="margin-top:8px;display:flex;gap:8px;">
+          <button class="add-btn" onclick="sendPrompt('Give me a full meal plan for tomorrow based on my NutritionMaxx goals')">Meal plan for tomorrow ↗</button>
+          <button class="add-btn" onclick="sendPrompt('Analyze my nutrition week in NutritionMaxx')">Weekly analysis ↗</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script>
+let waterFilled = 5;
+function renderWater() {
+  const grid = document.getElementById('water-cups');
+  grid.innerHTML = '';
+  for (let i = 0; i < 8; i++) {
+    const cup = document.createElement('div');
+    cup.className = 'water-cup' + (i < waterFilled ? ' filled' : '');
+    cup.innerHTML = i < waterFilled ? '💧' : '';
+    cup.style.fontSize = '14px';
+    cup.onclick = () => { waterFilled = i < waterFilled ? i : i + 1; renderWater(); };
+    grid.appendChild(cup);
+  }
+  document.getElementById('water-label').textContent = waterFilled + ' / 8 glasses';
+  document.getElementById('water-ml').textContent = (waterFilled * 250) + ' ml consumed';
+}
+renderWater();
+
+function toggle(meal) {
+  const body = document.getElementById('meal-' + meal);
+  const exp = document.getElementById('expand-' + meal);
+  if (body.style.display === 'none') { body.style.display = ''; exp.textContent = '▲'; }
+  else { body.style.display = 'none'; exp.textContent = '▼'; }
+}
+
+let dateOffset = 0;
+function changeDate(d) {
+  dateOffset += d;
+  const now = new Date();
+  now.setDate(now.getDate() + dateOffset);
+  const label = document.getElementById('date-display');
+  if (dateOffset === 0) label.textContent = 'Today, Mar 15';
+  else if (dateOffset === -1) label.textContent = 'Yesterday, Mar 14';
+  else {
+    const opts = { month: 'short', day: 'numeric' };
+    label.textContent = now.toLocaleDateString('en-US', opts);
+  }
+}
+</script>
